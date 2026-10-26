@@ -50,30 +50,40 @@ class MetaModelClient:
         messages: List[Dict[str, str]],
         model: Optional[str] = None,
         temperature: float = 0.4,
-        max_tokens: int = 1024
+        max_tokens: Optional[int] = 4096
     ) -> Dict[str, Any]:
         """
         Calls Meta Muse Chat Completion.
         Default model: muse-spark-1.3 (fast, colloquial Tamil reasoning).
+        Note: muse-spark and muse-wonder generate internal reasoning tokens,
+        so a generous max_tokens (e.g. 4096) is essential to avoid truncation.
         """
         url = f"{self.base_url}/chat/completions"
         payload = {
             "model": model or DEFAULT_CHAT_MODEL,
             "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens
+            "temperature": temperature
         }
-        resp = requests.post(url, headers=self.headers, json=payload, timeout=45)
+        if max_tokens is not None:
+            payload["max_tokens"] = max_tokens
+
+        resp = requests.post(url, headers=self.headers, json=payload, timeout=60)
         resp.raise_for_status()
         return resp.json()
 
     def deep_reasoning(
         self,
         messages: List[Dict[str, str]],
-        temperature: float = 0.2
+        temperature: float = 0.2,
+        max_tokens: Optional[int] = 6144
     ) -> Dict[str, Any]:
         """Calls Meta muse-wonder-1.0 for deep policy verification and multi-step eligibility reasoning."""
-        return self.chat_completion(messages=messages, model=REASONING_MODEL, temperature=temperature)
+        return self.chat_completion(
+            messages=messages,
+            model=REASONING_MODEL,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
 
     def transcribe_audio(self, audio_bytes: bytes, filename: str = "voice.mp3") -> Dict[str, Any]:
         """Transcribes Tamil audio voice notes using muse-voice-transcribe-1.0."""

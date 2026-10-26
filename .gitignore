@@ -1,0 +1,27 @@
+# Environment and Secrets (CRITICAL: Do NOT commit)
+.env
+.env.local
+*.key
+*.token
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Output & temp uploads
+temp/
+uploads/
+*.mp3
+*.wav
+*.png
+*.jpg
+!assets/*
